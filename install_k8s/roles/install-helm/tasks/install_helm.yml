@@ -1,0 +1,33 @@
+---
+
+- name: Baixando kubernetes-client archive
+  get_url:
+    url: "{{helm_url}}{{helm_compressed_file}}"
+    checksum: "{{helm_checksum}}"
+    dest: "{{helm_tmp_directory}}"
+  tags:
+    - helm
+
+  register: download
+
+- name: Descompactando helm
+  unarchive:
+    src: "{{helm_tmp_directory}}/{{helm_compressed_file}}"
+    dest: "{{helm_tmp_directory}}"
+  tags:
+    - helm
+  when: 
+    - download.failed|bool == false
+  register: descompactando
+
+- name: Copiando o binario do helm para o diretorio de destino
+  copy:
+    src: "{{helm_tmp_directory}}/linux-amd64/{{item}}"
+    dest: "{{helm_bin_directory}}/{{item}}"
+    mode: 0755
+    owner: root
+    group: root
+    remote_src: yes
+  with_items:
+    - helm
+  
