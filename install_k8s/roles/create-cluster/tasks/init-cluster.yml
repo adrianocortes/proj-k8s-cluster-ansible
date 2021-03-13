@@ -1,0 +1,54 @@
+- name: Removendo cluster antigo, caso exista
+  command: 
+    kubeadm reset --force
+
+  register: kubeadm_reset
+
+- name: Inicializando o cluster k8s
+  command:
+    kubeadm init
+  register: kubeadm_init
+
+- name: Criando o diretorio .kube
+  ansible.builtin.file:
+    path: ~/.kube
+    state: directory
+
+- name: Copiando kubelet.conf para admin.conf ( novas versões do kubernetes usam este novo nome )
+  ansible.builtin.file:
+    src: /etc/kubernetes/kubelet.conf
+    dest: /etc/kubernetes/admin.conf
+    remote_src: yes
+
+
+- name: Linkando o arquivo admin.conf para o ~/.kube/config
+  ansible.builtin.file:
+    src: /etc/kubernetes/admin.conf
+    dest: ~/.kube/config
+    state: link
+
+- name: Configurando o pod network WeaveNet
+  shell: kubectl apply -f {{ default_url_weavenet }}
+  register: weavenet_result
+
+- name: Pegando o Token do cluster
+  shell: kubeadm token list | cut -d ' ' -f1 | sed -n '2p'
+  register: k8s_token
+
+- name: CA Hash
+  shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  register: k8s_master_ca_hash
+
+- name: Adicionando o token e o hash em um Dummy Host
+  add_host:
+    name: "K8S_TOKEN_HOLDER"
+    token: "{{ k8s_token.stdout }}"
+    hash: "{{ k8s_master_ca_hash.stdout }}"
+
+- name:
+  debug: 
+    msg: "[MASTER] K8S_TOKEN_HOLDER - o token eh {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+
+- name:
+  debug: 
+    msg: "[MASTER] K8S_TOKEN_HOLDER - o hasg eh {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"    

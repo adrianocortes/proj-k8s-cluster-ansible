@@ -1,0 +1,3 @@
+---
+# tasks file for destruindo-instancias
+- include: destroying.yml

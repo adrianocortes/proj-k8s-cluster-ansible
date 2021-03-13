@@ -1,0 +1,29 @@
+- name: Terminate Instances
+  ec2_instance_facts:
+    profile: "{{ profile }}"
+    region: "{{ region }}"
+    filters:
+      "tag:Name": ansible-*
+  register: ec2_info
+ 
+- name: displaying output
+  debug: msg="{{item.instance_id}}"
+  with_items: "{{ec2_info.instances}}"
+
+
+- name: terminate
+  ec2:
+    instance_ids: "{{item.instance_id}}"
+    region: "{{ region }}"
+    state: absent
+    wait: yes
+  with_items: "{{ec2_info.instances}}"
+
+
+- name: Destruindo o Securety Group
+  local_action:
+    module: ec2_group
+    name: "{{ sec_group_name }}"
+    profile: "{{ profile }}"
+    region: "{{ region }}"  
+    state: absent
