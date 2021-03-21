@@ -1,0 +1,13 @@
+- name: teste
+  hosts: local
+  tasks:
+    - name: Criando Link
+      ansible.builtin.file:
+        src: /home/adrianocortes/df-i.txt
+        dest: /home/adrianocortes/Documents/df-i.txt
+        owner: adrianocortes
+        group: adrianocortes
+        state: link
+      register: link_created
+      changed_when: link_created.changed == true
+

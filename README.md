@@ -15,3 +15,18 @@ Projeto desenvolvido para provisionamento e instalação de um Cluster Kubernete
 
 - Destroy - Remove toda estrutura criada nas demais fases
 ```
+
+
+License
+-------
+
+MIT
+
+Author Information
+------------------
+
+Adriano Côrtes Vieira
+Computer Engeering
+SysAdmin
+DevOps
+RoR Developer

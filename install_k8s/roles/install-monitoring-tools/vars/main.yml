@@ -1,0 +1,10 @@
+---
+# vars file for install_k8s/roles/install-monitoring-tools
+url_repo_helm_old: https://kubernetes-charts.storage.googleapis.com
+url_repo_helm: https://charts.helm.sh/stable
+deploy_prometheus: meu-prometheus stable/prometheus-operator
+
+
+                    
+                   
+

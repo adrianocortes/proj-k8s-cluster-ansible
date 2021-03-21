@@ -1,5 +1,6 @@
 - name: Criando o Securety Group
-  ec2_group:
+  local_action:
+    module: ec2_group
     name: "{{ sec_group_name }}"
     description: sg Giropops
     profile: "{{ profile }}"
@@ -53,16 +54,23 @@
       cidr_ip: 0.0.0.0/0
       rule_desc: NodePort Services
 
-    - proto: tcp
-      from_port: 32222
-      to_port: 32222
-      cidr_ip: 0.0.0.0/0
-      rule_desc: Giropops App
-
     rules_egress:
     - proto: all
       cidr_ip: 0.0.0.0/0
   register: basic_firewall
+
+
+- name: 
+  debug: 
+    msg: "{{basic_firewall.group_id}}"
+
+
+
+
+
+
+
+
 
 
 - name: Criando novas roules no mesmo security group, liberando as portas apenas para este security group
@@ -80,35 +88,27 @@
     - proto: udp
       from_port: 6784
       to_port: 6784
-      group_id: "{{ basic_firewall.group_id }}"
+      group_id: "{{ basic_firewall.group_id}}"
       rule_desc: PodNetWord1
 
     - proto: udp
       from_port: 6783
       to_port: 6783
-      group_id: "{{ basic_firewall.group_id }}"
+      group_id: "{{ basic_firewall.group_id}}"
       rule_desc: PodNetWord2
 
     - proto: tcp
       from_port: 6783
       to_port: 6783
-      group_id: "{{ basic_firewall.group_id }}"
+      group_id: "{{ basic_firewall.group_id}}"
       rule_desc: PodNetWord3
-
-    - proto: tcp
-      from_port: 32111
-      to_port: 32111
-      group_id: "{{ basic_firewall.group_id }}"
-      rule_desc: Giropops App Prometheus
-
-
-
 
   register: basic_firewall_extend
 
 
 - name: Criando a instancia EC2
-  ec2:
+  local_action: 
+    module: ec2
     group: "{{ sec_group_name }}"
     instance_type: "{{ instance_type }}"
     image: "{{ image }}"
@@ -130,7 +130,8 @@
 
 
 - name: Adicionando o IP Publico da Instancia criada ao arquivo Hosts
-  lineinfile:
+  local_action: 
+    module: lineinfile
     dest: "./hosts"
     regexp: "{{ item.public_ip }}"
     insertafter: "[kubernetes]" 
@@ -139,7 +140,8 @@
 
 
 - name: Adicionando o IP Privado da Instancia criada ao arquivo Hosts
-  lineinfile:
+  local_action: 
+    module: lineinfile
     dest: ./hosts
     regexp: "{{ item.private_ip }}"
     insertafter: "[kubernetes]" 
@@ -148,14 +150,16 @@
 
 
 - name: Esperando o SSH
-  wait_for:
+  local_action: 
+    module: wait_for
     host: "{{ item.public_ip }}"
     port: 22
     state: started
   with_items: "{{ ec2.instances }}"
 
 - name: Adicionando uma tag na instancia
-  ec2_tag:
+  local_action:   
+    module: ec2_tag 
     resource: "{{ item.id }}"
     region: "{{ region }}" 
     profile: "{{ profile }}" 

@@ -1,11 +1,4 @@
 ---
 # vars file for install-helm
-helm_url: https://get.helm.sh/
-helm_compressed_file: helm-v3.5.3-linux-amd64.tar.gz
-helm_checksum: sha256:2170a1a644a9e0b863f00c17b761ce33d4323da64fc74562a3a6df2abbf6cd70
-helm_tmp_directory: "{{lookup('env', 'TMPDIR') | default('/tmp',true)}}"
-helm_os: "linux"
-helm_arch: "amd64"
-helm_bin_directory: "/usr/local/bin"
-helm_owner: "root"
-helm_group: "root"
+
+helm_url: https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
