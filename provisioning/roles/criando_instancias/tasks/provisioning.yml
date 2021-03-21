@@ -54,6 +54,12 @@
       cidr_ip: 0.0.0.0/0
       rule_desc: NodePort Services
 
+    - proto: tcp
+      from_port: 32222
+      to_port: 32222
+      cidr_ip: 0.0.0.0/0
+      rule_desc: Giropops App
+
     rules_egress:
     - proto: all
       cidr_ip: 0.0.0.0/0
@@ -63,14 +69,6 @@
 - name: 
   debug: 
     msg: "{{basic_firewall.group_id}}"
-
-
-
-
-
-
-
-
 
 
 - name: Criando novas roules no mesmo security group, liberando as portas apenas para este security group
@@ -102,6 +100,15 @@
       to_port: 6783
       group_id: "{{ basic_firewall.group_id}}"
       rule_desc: PodNetWord3
+
+    - proto: tcp
+      from_port: 32111
+      to_port: 32111
+      group_id: "{{ basic_firewall.group_id}}"
+      rule_desc: Giropops App Prometheus
+
+
+
 
   register: basic_firewall_extend
 
